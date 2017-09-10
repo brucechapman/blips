@@ -3,12 +3,16 @@
 function create() {
 (
 headcons=
-#while true; do
-#    if read line;  then
-while read line ; do
+while true; do
+    if read line;  then
         if [[ "$line" == '(' ]]; then
 	    next=`create`
 	    while [[ $next != ')' ]] ; do
+	        if [[ $next == EOF ]] ; then
+		    #echo EOF
+		    echo -n '>' >&2
+		    break
+		fi
 	   	nextcons=`mktemp -u .cons_XXXX`
 		if [ -z "$headcons" ] ; then
 		    headcons=$nextcons
@@ -20,6 +24,9 @@ while read line ; do
 		ln -s ../$next $nextcons/car
 		next=`create`
 	    done
+	    if [[ $next == EOF ]] ; then
+		break
+	    fi
 	    ln -s ../nil $nextcons/cdr
 	    echo $headcons
 	    break
@@ -30,6 +37,7 @@ while read line ; do
 	    int=.int_$line
 	    if [ ! -r $int ] ; then
 		touch $int
+		echo $line > $int
 	    fi
 	    echo $int
 	    break
@@ -47,11 +55,11 @@ while read line ; do
             break
         fi
         echo $line
-#    else
-#	echo EOF
-#    fi
+    else
+	echo EOF
+	break 
+    fi
 done
-echo EOF
 )
 
 }
@@ -91,9 +99,22 @@ function tokenise() {
     remove_comments | strings_to_own_line |parens_to_own_line | tokens_to_own_line |remove_blank_lines
 }
 
+
+function print() {
+    if [[ $1 =~ \.cons_.* ]] ; then
+	echo a cons $1
+    elif [[ $1 =~ \.int_.* ]];  then
+	cat $1
+    elif [[ $1 =~ \.str_.* ]]; then
+        echo -n '"'
+	echo -n `cat $1`
+	echo '"'
+    else
+	echo $1
+    fi
+}
+
+
 #set -vx
-tokenise | create
-
-
-
+print `tokenise | create`
 
