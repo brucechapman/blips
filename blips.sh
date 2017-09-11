@@ -106,19 +106,47 @@ function tokenise() {
 
 function print() {
     if [[ $1 =~ \.cons_.* ]] ; then
-	echo a cons $1
+        echo -n '('
+	ptr=$1
+	while [[ $(basename $(readlink $ptr/cdr)) =~ \.cons_.* ]] ; do
+	    (print $(basename $(readlink $ptr/car)))
+	    ptr=$(basename $(readlink $ptr/cdr))
+	done
+	(print $(basename $(readlink $ptr/car)))
+	if [[ $(basename $(readlink $ptr/cdr)) != nil ]] ; then
+	    echo -n ' . '
+	    (print $basename $readlink $ptr/cdr)
+	fi
+	echo -n ')'
+
     elif [[ $1 =~ \.int_.* ]];  then
-	cat $1
+	echo -n `cat $1`
     elif [[ $1 =~ \.str_.* ]]; then
         echo -n '"'
 	echo -n `cat $1`
 	echo '"'
     else
-	echo $1
+	echo -n $1
     fi
+    echo -n ' '
 }
 
 
-set -vx
+#set -vx
 print `tokenise | create`
 
+# close to garbage collector
+# find -L . \( -depth 1 -a -name '.*' \) -prune -o -exec ls -l {} \;
+# then touch the found files, also prune files newer than fixed file used for gc
+# once all non garbage files are found as above then delete all files older than the fixed file
+# but beware this
+#./set
+#./setq
+#./x
+#touch: ./x/.cons_I3XM: Too many levels of symbolic links
+#./x/car
+#./x/cdr
+#./x/cdr/car
+#./x/cdr/cdr
+# this is better
+# find -L . \( -depth 1 -a -name '.*' \) -prune -o -exec touch -h {} \; -print
