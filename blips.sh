@@ -27,8 +27,12 @@ while true; do
 	    if [[ $next == EOF ]] ; then
 		break
 	    fi
-	    ln -s ../nil $nextcons/cdr
-	    echo $headcons
+	    if [[ $headcons ]] ; then
+		ln -s ../nil $nextcons/cdr
+		echo $headcons
+	    else
+		echo nil
+	    fi
 	    break
 	elif [[ $line == ')' ]] ; then
 	    echo $line
@@ -115,6 +119,6 @@ function print() {
 }
 
 
-#set -vx
+set -vx
 print `tokenise | create`
 
