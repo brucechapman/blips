@@ -72,7 +72,7 @@ function remove_comments() {
 }
 
 function strings_to_own_line() {
-    sed -E -e 's/"([^"]|\")*"/\
+    sed -E -e 's/"([^"]|\\")*"/\
 &\
 /g'
 }
@@ -122,15 +122,16 @@ function print() {
     elif [[ $1 =~ \.str_.* ]]; then
         echo -n '"'
 	echo -n `cat $1`
-	echo '"'
+	echo -n '"'
     else
 	echo -n $1
     fi
 }
 
-
 #set -vx
-print `tokenise | create`
+result=`tokenise | create`
+#echo $result
+print $result
 
 # close to garbage collector
 # find -L . \( -depth 1 -a -name '.*' \) -prune -o -exec ls -l {} \;
