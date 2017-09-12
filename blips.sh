@@ -113,7 +113,7 @@ function print() {
 	(print $(basename $(readlink $ptr/car)))
 	if [[ $(basename $(readlink $ptr/cdr)) != nil ]] ; then
 	    echo -n ' . '
-	    (print $basename $readlink $ptr/cdr)
+	    (print $(basename $(readlink $ptr/cdr)))
 	fi
 	echo -n ')'
 
@@ -128,10 +128,32 @@ function print() {
     fi
 }
 
+# $1 is an atom
+function eval() {
+    if [[ $1 =~ \.cons_.* ]] ; then
+       # the hard one with all the interesting stuff
+       echo TODO eval $(basename $(readlink $1/car)) >&2
+    elif [[ $1 =~ \.int_.* ]];  then
+       echo $1
+    elif [[ $1 =~ \.str_.* ]]; then
+       echo $1
+    else
+        # a symbol
+        if [ -h $1 ] ; then
+	    readlink $1
+	else
+	    echo nil
+	fi
+    fi
+}
+
+expr=`tokenise | create`
+echo expr=$expr
+result=`eval $expr`
 #set -vx
-result=`tokenise | create`
-#echo $result
+echo -n '='
 print $result
+echo ''
 
 # close to garbage collector
 # find -L . \( -depth 1 -a -name '.*' \) -prune -o -exec ls -l {} \;
