@@ -110,6 +110,7 @@ function print() {
 	ptr=$1
 	while [[ $(basename $(readlink $ptr/cdr)) =~ \.cons_.* ]] ; do
 	    (print $(basename $(readlink $ptr/car)))
+	    echo -n ' '
 	    ptr=$(basename $(readlink $ptr/cdr))
 	done
 	(print $(basename $(readlink $ptr/car)))
@@ -128,7 +129,6 @@ function print() {
     else
 	echo -n $1
     fi
-    echo -n ' '
 }
 
 
