@@ -131,8 +131,24 @@ function print() {
 # $1 is an atom
 function eval() {
     if [[ $1 =~ \.cons_.* ]] ; then
-       # the hard one with all the interesting stuff
-       echo TODO eval $(basename $(readlink $1/car)) >&2
+        # the hard one with all the interesting stuff
+        fname=$(basename $(readlink $1/car))
+        if [ -h $fname ] ; then
+	    echo eval $fname is a link >&2
+	    target=$(readlink $fname)
+	    echo TODO eval "($fname -> $target"  >&2
+	    if [[ $target =~ \.subf_.* ]] ; then
+		echo Ain internal form >&2
+	    elif [[ $target =~ \.subr_.* ]] ; then
+		echo An internal function >&2
+	    elif [[ $target =~ \.cons_.* ]] ; then
+		echo A defunned function >&2
+	    else
+		echo unknown >&2
+	    fi
+	else
+	    echo call to unbound function name $fname >&2
+	fi
     elif [[ $1 =~ \.int_.* ]];  then
        echo $1
     elif [[ $1 =~ \.str_.* ]]; then
