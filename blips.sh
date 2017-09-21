@@ -128,23 +128,74 @@ function print() {
     fi
 }
 
+# $1 is function name 
+# $2 .. $(n) are args
+function process_internal_form() {
+    #echo Process internal form $* >&2
+    fname=${1#.subf_}_impl
+    #echo function name is $fname type is $(type -t $fname) >&2
+    if [ -n "$(type -t $fname)" ] && [ "$(type -t $fname)" = function ]; then
+        shift 1
+	$fname $*
+    else
+	echo Internal function $fname not found >&2
+	exit 1
+    fi
+}
+
+function setq_impl() {
+    #echo setq_impl called with $* >&2
+    while [ -n "$2" ] ; do
+	# TODO check $1 is a symbol
+	if [ -r $1 ] ; then
+	    rm $1
+	fi
+	val=$(eval_impl $2)
+	ln -s $val $1
+	shift 2
+    done
+    if [ -n "$1" ] ; then
+	echo setq with odd number of arguments >&2
+	exit 1
+    fi
+    echo $val
+}
+
+# $1 is cons of 1st arg
+# return a list of all the args in the list
+function arglist() {
+    #echo arglist of $1 >&2
+    ptr=$1
+    while [[ $(basename $(readlink $ptr/cdr)) =~ \.cons_.* ]] ; do
+	echo -n $(basename $(readlink $ptr/car))
+	echo -n ' '
+	ptr=$(basename $(readlink $ptr/cdr))
+    done
+    echo $(basename $(readlink $ptr/car))
+    if [[ $(basename $(readlink $ptr/cdr)) != nil ]] ; then
+        echo Dotted list illegal as function call >&2
+	exit 1
+    fi
+}
+
 # $1 is an atom
-function eval() {
+function eval_impl() {
     if [[ $1 =~ \.cons_.* ]] ; then
         # the hard one with all the interesting stuff
         fname=$(basename $(readlink $1/car))
         if [ -h $fname ] ; then
-	    echo eval $fname is a link >&2
+	    #echo eval_impl $fname is a link >&2
 	    target=$(readlink $fname)
-	    echo TODO eval "($fname -> $target"  >&2
+	    #echo TODO eval_impl "($fname -> $target"  >&2
 	    if [[ $target =~ \.subf_.* ]] ; then
-		echo Ain internal form >&2
+		#echo An internal form >&2
+		process_internal_form $target $(arglist $(basename $(readlink $1/cdr)))
 	    elif [[ $target =~ \.subr_.* ]] ; then
 		echo An internal function >&2
 	    elif [[ $target =~ \.cons_.* ]] ; then
-		echo A defunned function >&2
+		echo A user function >&2
 	    else
-		echo unknown >&2
+		echo unknown function call type >&2
 	    fi
 	else
 	    echo call to unbound function name $fname >&2
@@ -164,9 +215,10 @@ function eval() {
 }
 
 expr=`tokenise | create`
-echo expr=$expr
-result=`eval $expr`
+#echo expr=$expr
+result=`eval_impl $expr`
 #set -vx
+#echo result of eval=$result >&2
 echo -n '='
 print $result
 echo ''
