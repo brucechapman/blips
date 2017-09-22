@@ -158,16 +158,20 @@ function process_internal_func() {
     fi
 }
 
+# $1 is symbol $2 is a value
+function bind() {
+    if [ -r $1 ] ; then
+	rm $1
+    fi
+    ln -s $2 $1
+}
 
 function setq_form_impl() {
     #echo setq_impl called with $* >&2
     while [ -n "$2" ] ; do
 	# TODO check $1 is a symbol
-	if [ -r $1 ] ; then
-	    rm $1
-	fi
 	val=$(eval_impl $2)
-	ln -s $val $1
+	bind $1 $val
 	shift 2
     done
     if [ -n "$1" ] ; then
@@ -260,18 +264,10 @@ function install_implementations() {
     declare -F | cut -d ' ' -f3 | while read fnc; do
 	if [[ $fnc =~ .*_form_impl ]] ; then
 	    fname=${fnc%_form_impl}
-	    if [ -r $fname ] ; then
-		rm $fname
-	    fi
-	    ln -s .subf_$fname $fname
+	    bind $fname .subf_$fname
 	elif [[ $fnc =~ .*_func_impl ]] ; then
 	    fname=${fnc%_func_impl}
-	    #echo create symbol $fname for $fnc >&2
-	    if [ -r $fname ] ; then
-		#echo $fname exists
-		rm $fname
-	    fi
-	    ln -s .subr_$fname $fname
+	    bind $fname .subr_$fname
 	fi
     done
 }
