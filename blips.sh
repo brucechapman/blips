@@ -243,14 +243,14 @@ function quote_form_impl() {
 }
 
 function +_func_impl() {
-    echo plus $* >&2
+    #echo plus $* >&2
     result=$(cat $1)
     shift
     while [[ -n $1 ]] ; do
 	result=$(($result+$(cat $1)))
 	shift
     done
-    echo result=$result >&2
+    #echo result=$result >&2
     int=.int_$result
     if [ ! -r $int ] ; then
 	touch $int
@@ -269,9 +269,9 @@ function install_implementations() {
 	    ln -s .subf_$fname $fname
 	elif [[ $fnc =~ .*_func_impl ]] ; then
 	    fname=${fnc%_func_impl}
-	    echo create symbol $fname for $fnc >&2
+	    #echo create symbol $fname for $fnc >&2
 	    if [ -r $fname ] ; then
-		echo $fname exists
+		#echo $fname exists
 		rm $fname
 	    fi
 	    ln -s .subr_$fname $fname
