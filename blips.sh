@@ -37,12 +37,7 @@ function create() {
 		echo $line
 		break
 	    elif echo $line | grep -q -E '^\-?[0-9]+$' ; then
-		int=.int_$line
-		if [ ! -r $int ] ; then
-		    touch $int
-		    echo $line > $int
-		fi
-		echo $int
+	        make_int $line
 		break
 	    elif echo $line | grep -q -E '^"' ; then
 		str=`mktemp -u .str_XXXX`
@@ -65,7 +60,14 @@ function create() {
     done
 }
 
-
+function make_int() {
+    int=.int_$1
+    if [ ! -r $int ] ; then
+	touch $int
+	echo $1 > $int
+    fi
+    echo $int
+}
 
 function remove_comments() {
     sed -E -e 's/;.*$//' 
@@ -251,12 +253,7 @@ function +_func_impl() {
 	shift
     done
     #echo result=$result >&2
-    int=.int_$result
-    if [ ! -r $int ] ; then
-	touch $int
-	echo $result > $int
-    fi
-    echo $int
+    make_int $result
 }
 
 function install_implementations() {
