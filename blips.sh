@@ -132,7 +132,7 @@ function print() {
 # $2 .. $(n) are args
 function process_internal_form() {
     #echo Process internal form $* >&2
-    fname=${1#.subf_}_impl
+    fname=${1#.subf_}_form_impl
     #echo function name is $fname type is $(type -t $fname) >&2
     if [ -n "$(type -t $fname)" ] && [ "$(type -t $fname)" = function ]; then
         shift 1
@@ -143,7 +143,21 @@ function process_internal_form() {
     fi
 }
 
-function setq_impl() {
+function process_internal_func() {
+    #echo Process internal form $* >&2
+    fname=${1#.subr_}_func_impl
+    #echo function name is $fname type is $(type -t $fname) >&2
+    if [ -n "$(type -t $fname)" ] && [ "$(type -t $fname)" = function ]; then
+        shift 1
+	$fname $*
+    else
+	echo Internal function $fname not found >&2
+	exit 1
+    fi
+}
+
+
+function setq_form_impl() {
     #echo setq_impl called with $* >&2
     while [ -n "$2" ] ; do
 	# TODO check $1 is a symbol
@@ -191,9 +205,11 @@ function eval_impl() {
 		#echo An internal form >&2
 		process_internal_form $target $(arglist $(basename $(readlink $1/cdr)))
 	    elif [[ $target =~ \.subr_.* ]] ; then
-		echo An internal function >&2
+		#echo An internal function >&2
+		process_internal_func $target $(eval_all_args $(arglist $(basename $(readlink $1/cdr))))
 	    elif [[ $target =~ \.cons_.* ]] ; then
-		echo A user function >&2
+		#echo A user function TODO >&2
+		process_external_func $target $(eval_all_args $(arglist $(basename $(readlink $1/cdr))))
 	    else
 		echo unknown function call type >&2
 	    fi
@@ -213,6 +229,57 @@ function eval_impl() {
 	fi
     fi
 }
+
+function eval_all_args() {
+    while [ -n "$1" ] ; do
+     	echo -n $(eval_impl $1)
+	echo -n ' '
+	shift
+    done
+}
+
+function quote_form_impl() {
+    echo $1
+}
+
+function +_func_impl() {
+    echo plus $* >&2
+    result=$(cat $1)
+    shift
+    while [[ -n $1 ]] ; do
+	result=$(($result+$(cat $1)))
+	shift
+    done
+    echo result=$result >&2
+    int=.int_$result
+    if [ ! -r $int ] ; then
+	touch $int
+	echo $result > $int
+    fi
+    echo $int
+}
+
+function install_implementations() {
+    declare -F | cut -d ' ' -f3 | while read fnc; do
+	if [[ $fnc =~ .*_form_impl ]] ; then
+	    fname=${fnc%_form_impl}
+	    if [ -r $fname ] ; then
+		rm $fname
+	    fi
+	    ln -s .subf_$fname $fname
+	elif [[ $fnc =~ .*_func_impl ]] ; then
+	    fname=${fnc%_func_impl}
+	    echo create symbol $fname for $fnc >&2
+	    if [ -r $fname ] ; then
+		echo $fname exists
+		rm $fname
+	    fi
+	    ln -s .subr_$fname $fname
+	fi
+    done
+}
+
+install_implementations
 
 expr=`tokenise | create`
 #echo expr=$expr
