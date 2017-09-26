@@ -16,6 +16,20 @@ function process_internal_form() {
     fi
 }
 
+# $1 is function name 
+# $2 is a cons head of arg list
+function process_internal_form2() {
+    #echo Process internal form $* >&2
+    fname=${1#.subf2_}_form2_impl
+    #echo function name is $fname type is $(type -t $fname) >&2
+    if [ -n "$(type -t $fname)" ] && [ "$(type -t $fname)" = function ]; then
+	$fname $2
+    else
+	echo Internal function $fname not found >&2
+	exit 1
+    fi
+}
+
 function process_internal_func() {
     #echo Process internal form $* >&2
     fname=${1#.subr_}_func_impl
@@ -58,6 +72,9 @@ function eval_impl() {
 	    if [[ $target =~ \.subf_.* ]] ; then
 		#echo An internal form >&2
 		process_internal_form $target $(arglist $(basename $(readlink $1/cdr)))
+	    elif [[ $target =~ \.subf2_.* ]] ; then
+		#echo An internal form >&2
+		process_internal_form2 $target $(basename $(readlink $1/cdr))
 	    elif [[ $target =~ \.subr_.* ]] ; then
 		#echo An internal function >&2
 		process_internal_func $target $(eval_all_args $(arglist $(basename $(readlink $1/cdr))))

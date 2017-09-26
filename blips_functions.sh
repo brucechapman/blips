@@ -20,6 +20,13 @@ function quote_form_impl() {
     echo $1
 }
 
+function defun_form2_impl() {
+    #echo $(arglist $1) >&2
+    #echo head is $1 car is $(car $1) cdr is $(cdr $1) >&2
+    bind $(car $1) $(cdr $1)
+    echo $(car $1) 
+}
+
 function +_func_impl() {
     #echo plus $* >&2
     result=$(cat $1)
@@ -37,6 +44,9 @@ function install_implementations() {
 	if [[ $fnc =~ .*_form_impl ]] ; then
 	    fname=${fnc%_form_impl}
 	    bind $fname .subf_$fname
+	elif [[ $fnc =~ .*_form2_impl ]] ; then
+	    fname=${fnc%_form2_impl}
+	    bind $fname .subf2_$fname
 	elif [[ $fnc =~ .*_func_impl ]] ; then
 	    fname=${fnc%_func_impl}
 	    bind $fname .subr_$fname
