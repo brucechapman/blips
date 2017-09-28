@@ -43,6 +43,22 @@ function process_internal_func() {
     fi
 }
 
+function process_external_func() {
+    echo TODO $* >&2
+    #print $1 >&2
+    #TODO
+    # car 41 is arglist
+    # push stack
+    #   create a new stack frame 
+    #   and move .stack (possibly bound to previous stack frame)
+    #   and each symbol in arglist into stack frame dir
+    #   bind .stack to new stack frame
+    # bind arglist arg names to actual args (chceking arity)
+    # eval each expression in (cdr $1)
+    # pop stack reversing push above
+    echo $1
+}
+
 # $1 is cons of 1st arg
 # return a list of all the args in the list
 function arglist() {
