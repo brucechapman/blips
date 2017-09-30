@@ -39,6 +39,18 @@ function +_func_impl() {
     make_int $result
 }
 
+function car_func_impl() {
+    car $1
+}
+
+function cdr_func_impl() {
+    cdr $1
+}
+
+function cons_func_impl() {
+    make_cons $1 $2
+}
+
 function install_implementations() {
     declare -F | cut -d ' ' -f3 | while read fnc; do
 	if [[ $fnc =~ .*_form_impl ]] ; then
