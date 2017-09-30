@@ -13,11 +13,11 @@ function make_int() {
 
 # $1 is symbol $2 is a value
 function bind() {
-    if [[ -n $2 ]] ; then
-	ln -sf $2 $1
+    if [[ -n $2 && $2 != nil ]] ; then
+	ln -sfhF $2 $1
     else
-	if [ -f $1 ] ; then
-	    rm $1
+	if [ -e $1 ] ; then
+	    rm -d $1
 	fi
 	touch $1
     fi

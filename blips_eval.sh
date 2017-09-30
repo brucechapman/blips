@@ -44,21 +44,72 @@ function process_internal_func() {
 }
 
 function process_external_func() {
-    echo TODO $* >&2
+    #echo TODO $* >&2
     #print $1 >&2
-    #TODO
-    # car 41 is arglist
-    # push stack
-    #   create a new stack frame 
-    #   and move .stack (possibly bound to previous stack frame)
-    #   and each symbol in arglist into stack frame dir
-    #   bind .stack to new stack frame
+    # car $1 is arglist
+    args=$(arglist $(car $1))
+    # cdr $1 is expressions to evaluate
+    exprs=$(cdr $1)
+    #echo -n 'expressions ' >&2
+    #print $exprs >&2
+    #echo args $args >&2
+    push_stack $args 
     # bind arglist arg names to actual args (chceking arity)
+    for arg in $args ; do
+	#echo arg=$arg = $2 >&2
+	bind $arg $2
+	shift
+    done
+    for expr in $(arglist $exprs) ; do
+	#echo -n 'eval ' >&2
+	#print $expr >&2
+	last=$(eval_impl $expr)
+    done
     # eval each expression in (cdr $1)
     # pop stack reversing push above
-    echo $1
+    pop_stack $args
+    echo $last
 }
 
+function push_stack() {
+    # create a new stack frame 
+    frame=$(mktemp -d -u .stk_frame_XXXX)
+    mkdir $frame
+    # and move .stack (possibly bound to previous stack frame)
+    if [ -f .stack ] ; then
+	bind $frame/.stack ../$(readlink .stack)
+    fi
+    bind .stack $frame
+    #echo frame=$frame $(ls -l .stack) >&2
+    # and each symbol in arglist into stack frame dir
+    while [[ -n $1 ]] ; do
+	if [[ -f $1 ]] ; then
+	    mv $1 $frame
+	fi
+	touch $1
+	shift
+    done
+}
+
+function pop_stack() {
+    frame=$(readlink .stack)
+    # for each symbol in arglist
+    while [[ -n $1 ]] ; do
+	# restore from stack frame
+	rm $1
+	mv $frame/$1 $1
+	shift
+    done;
+    # remove frame from stack
+    if [ -h $frame/.stack ] ; then
+	nextframe=$(basename $(readlink $frame/.stack))
+    else
+	nextframe=nil
+    fi
+    bind .stack $nextframe
+    rm -rf $frame
+}
+	
 # $1 is cons of 1st arg
 # return a list of all the args in the list
 function arglist() {
