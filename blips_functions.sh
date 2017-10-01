@@ -15,6 +15,14 @@ function setq_form_impl() {
     echo $val
 }
 
+function set_func_impl() {
+    bind $1 $2
+}
+
+function eval_func_impl() {
+    eval_impl $1
+}
+
 
 function quote_form_impl() {
     echo $1
