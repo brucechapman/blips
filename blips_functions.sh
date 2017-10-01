@@ -35,6 +35,27 @@ function defun_form2_impl() {
     echo $(car $1) 
 }
 
+# return 0 (true) if $1 is not nil
+function predicate() {
+    if [[ -z $1 ]] ; then
+	return 1
+    elif [[ $1 == nil ]] ; then
+	return 1
+    else
+	return 0
+    fi
+}
+
+function if_form_impl() {
+    if predicate $(eval_impl $1) ; then
+	eval_impl $2
+    elif [[ -n $3 ]] ; then
+	eval_impl $3
+    else
+	echo nil
+    fi
+}
+
 function +_func_impl() {
     #echo plus $* >&2
     result=$(cat $1)
