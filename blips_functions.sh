@@ -3,7 +3,7 @@
 function setq_form_impl() {
     #echo setq_impl called with $* >&2
     while [ -n "$2" ] ; do
-	# TODO check $1 is a symbol
+        # TODO check $1 is a symbol
 	val=$(eval_impl $2)
 	bind $1 $val
 	shift 2
@@ -26,6 +26,27 @@ function eval_func_impl() {
 
 function quote_form_impl() {
     echo $1
+}
+
+function =_func_impl() {
+    if [[ $1 =~ \.int_.* && $2 =~ \.int_.* ]] ; then
+	if [[ $1 == $2 ]] ; then
+	    echo T
+	else
+	    echo nil
+	fi
+    else
+	echo = only implemented for ints >&2
+	echo nil
+    fi
+}
+
+function not_func_impl() {
+    if predicate $1 ; then
+	echo nil
+    else
+	echo T
+    fi
 }
 
 function defun_form2_impl() {
@@ -56,6 +77,18 @@ function if_form_impl() {
     fi
 }
 
+function while_form_impl() {
+    pred=$1
+    shift
+    while predicate $(eval_impl $pred) ; do
+	for expr; do
+	    echo eval $(print $expr) >&2
+	    result=$(eval_impl $expr)
+	done
+    done
+    echo $result
+}
+
 function +_func_impl() {
     #echo plus $* >&2
     result=$(cat $1)
@@ -78,6 +111,44 @@ function cdr_func_impl() {
 
 function cons_func_impl() {
     make_cons $1 $2
+}
+
+function print_func_impl() {
+    print $1 >&2
+    echo $1
+}
+
+function load_func_impl() {
+    if [[ $1 =~ \.str_.* ]] ; then
+	if [ -r $CWD_DIR/$(cat $1) ] ; then
+	    exprs=$(cat $CWD_DIR/$(cat $1) | tokenise | tee debug.tmp | createlots )
+	    #echo exprs $exprs >&2
+	    for expr in $exprs ; do
+	        #echo evaluating $(print $expr) >&2
+		result=$(eval_impl $expr)
+		#echo evaluating $expr gives $result >&2
+	    done
+	    echo $result
+	else
+	    echo Cannot read $CWD_DIR/$(cat $1) >&2
+	    return 1
+	fi
+    else
+	echo load must specify file name >&2
+	return 1
+    fi 
+}
+
+function createlots() {
+    while true ; do
+	expr=$(create)
+	#echo createlots - next expr is $expr >&2
+	if [[ $expr == EOF ]] ; then
+	    break
+	else
+	    echo -n "$expr "
+	fi
+    done
 }
 
 function install_implementations() {
