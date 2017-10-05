@@ -80,13 +80,13 @@ function parens_to_own_line() {
 
 
 function tokens_to_own_line() {
-    sed -E -e '/^[^"]/s/[ ]+/\
+    sed -E -e '/^[^"]/s/[ 	]+/\
 /g' 
 }
 
 
 function remove_blank_lines() {
-    sed -e '/^$/d'
+    grep -vE '^	*$'
 }
 
 function tokenise() {
