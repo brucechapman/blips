@@ -76,15 +76,17 @@ function push_stack() {
     frame=$(mktemp -d -u .stk_frame_XXXX)
     mkdir $frame
     # and move .stack (possibly bound to previous stack frame)
-    if [ -f .stack ] ; then
+    if [ -h .stack ] ; then
 	bind $frame/.stack ../$(readlink .stack)
     fi
     bind .stack $frame
-    #echo frame=$frame $(ls -l .stack) >&2
+    #echo push $* frame=$frame $(ls -l .stack) >&2
     # and each symbol in arglist into stack frame dir
     while [[ -n $1 ]] ; do
 	if [[ -f $1 ]] ; then
+#	    set -vx
 	    mv $1 $frame
+	    #set +vx
 	fi
 	touch $1
 	shift
@@ -94,18 +96,23 @@ function push_stack() {
 function pop_stack() {
     frame=$(readlink .stack)
     # for each symbol in arglist
+    #echo pop stack $* $frame >&2
     while [[ -n $1 ]] ; do
 	# restore from stack frame
 	rm $1
+	#set -vx
 	mv $frame/$1 $1
+	#set +vx
 	shift
     done;
     # remove frame from stack
+    #set -vx
     if [ -h $frame/.stack ] ; then
 	nextframe=$(basename $(readlink $frame/.stack))
     else
 	nextframe=nil
     fi
+    #set +vx
     bind .stack $nextframe
     rm -rf $frame
 }
