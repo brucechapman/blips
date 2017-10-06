@@ -82,7 +82,6 @@ function while_form_impl() {
     shift
     while predicate $(eval_impl $pred) ; do
 	for expr; do
-	    echo eval $(print $expr) >&2
 	    result=$(eval_impl $expr)
 	done
     done
@@ -115,6 +114,7 @@ function cons_func_impl() {
 
 function print_func_impl() {
     print $1 >&2
+    echo '' >&2
     echo $1
 }
 
