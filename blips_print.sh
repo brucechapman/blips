@@ -5,13 +5,14 @@ function print() {
     if [[ $1 =~ \.cons_.* ]] ; then
         echo -n '('
 	ptr=$1
-	while [[ $(basename $(readlink $ptr/cdr)) =~ \.cons_.* ]] ; do
+	while [[ -h $ptr/cdr && $(basename $(readlink $ptr/cdr)) =~ \.cons_.* ]] ; do
 	    (print $(basename $(readlink $ptr/car)))
 	    echo -n ' '
 	    ptr=$(basename $(readlink $ptr/cdr))
+
 	done
 	(print $(basename $(readlink $ptr/car)))
-	if [[ $(basename $(readlink $ptr/cdr)) != nil ]] ; then
+	if [[ ! -h $ptr/cdr || $(basename $(readlink $ptr/cdr)) != nil ]] ; then
 	    echo -n ' . '
 	    (print $(basename $(readlink $ptr/cdr)))
 	fi
