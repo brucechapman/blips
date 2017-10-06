@@ -13,7 +13,9 @@ function make_int() {
 
 # $1 is symbol $2 is a value
 function bind() {
-    if [[ -n $2 && $2 != nil ]] ; then
+    if [ $1 == nil ] ; then
+	echo cannot bind nil to a value >&2
+    elif [[ -n $2 && $2 != nil ]] ; then
 	ln -sfhF $2 $1
     else
 	if [ -e $1 ] ; then
