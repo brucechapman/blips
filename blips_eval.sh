@@ -83,10 +83,11 @@ function push_stack() {
     #echo push $* frame=$frame $(ls -l .stack) >&2
     # and each symbol in arglist into stack frame dir
     while [[ -n $1 ]] ; do
-	if [[ -f $1 ]] ; then
-#	    set -vx
-	    mv $1 $frame
-	    #set +vx
+	if [ -h $1 ] ; then
+	    ln -s ../$(readlink $1) $frame/$1
+	    rm $1
+	elif [ -f $1 ] ; then
+	    touch $frame/$1
 	fi
 	touch $1
 	shift
@@ -99,9 +100,15 @@ function pop_stack() {
     #echo pop stack $* $frame >&2
     while [[ -n $1 ]] ; do
 	# restore from stack frame
-	rm $1
+	if [ -e $1 ] ; then
+	    rm -rf $1
+	fi
 	#set -vx
-	mv $frame/$1 $1
+	if [ -h $frame/$1 ] ; then
+	    ln -s $(basename $(readlink $frame/$1)) $1
+	elif [ -f $frame/$1 ] ; then
+	    mv $frame/$1 $1
+	fi
 	#set +vx
 	shift
     done;
