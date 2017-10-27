@@ -122,12 +122,16 @@ function pop_stack() {
     #set +vx
     bind .stack $nextframe
     rm -rf $frame
+    #time gc >&2
 }
 	
 # $1 is cons of 1st arg
 # return a list of all the args in the list
 function arglist() {
     #echo arglist of $1 >&2
+    if [ $1 == nil ] ; then
+	return
+    fi
     ptr=$1
     while [[ $(basename $(readlink $ptr/cdr)) =~ \.cons_.* ]] ; do
 	echo -n $(basename $(readlink $ptr/car))
