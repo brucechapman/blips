@@ -56,6 +56,11 @@ function defun_form2_impl() {
     echo $(car $1) 
 }
 
+function gc_func_impl() {
+    gc
+    echo nil
+}
+
 # return 0 (true) if $1 is not nil
 function predicate() {
     if [[ -z $1 ]] ; then
