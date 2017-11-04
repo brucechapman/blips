@@ -50,13 +50,14 @@ function gc() {
     touch .gc_mark
     sleep 1
     touch -h *
-    set -vx
-    find -H . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune -o -exec touch -h {} \; -exec touch -cam {} \; 
-    set +vx
-    
+    find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune -o -exec touch -h {} \; -exec touch -cam {} \; 
+    #find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune \
+    	#-o -newer .gc_mark -prune \ # this way of skipping self bound symbols failed
+	#-o -exec touch -h {} \; -exec touch -cam {} \; 
+    #find . \( \! -newer .gc_mark \) -exec ls -l {} \; >&2
     find . \( \! -newer .gc_mark \) -delete
     afta=$(ls -a | wc | cut -c1-8)
-    #echo GC $b4 to $afta >&2
+    echo GC $b4 to $afta >&2
 }
 
 repl
