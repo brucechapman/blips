@@ -1,6 +1,19 @@
 #!/bin/bash
 #
 
+function gc() {
+    b4=$(ls -a | wc | cut -c1-8)
+    touch .gc_mark
+    sleep 1
+    touch -h *
+    find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune -o -exec touch -h {} \; -exec touch -cam {} \; 
+    find . \( \! -newer .gc_mark \) -delete
+    afta=$(ls -a | wc | cut -c1-8)
+    echo GC $b4 to $afta >&2
+}
+
+touch garbageCounter
+
 source blips_eval.sh
 source blips_functions.sh
 source blips_print.sh
@@ -44,22 +57,6 @@ function repl() {
 	echo ''
     done
 }
-
-function gc() {
-    b4=$(ls -a | wc | cut -c1-8)
-    touch .gc_mark
-    sleep 1
-    touch -h *
-    find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune -o -exec touch -h {} \; -exec touch -cam {} \; 
-    #find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune \
-    	#-o -newer .gc_mark -prune \ # this way of skipping self bound symbols failed
-	#-o -exec touch -h {} \; -exec touch -cam {} \; 
-    #find . \( \! -newer .gc_mark \) -exec ls -l {} \; >&2
-    find . \( \! -newer .gc_mark \) -delete
-    afta=$(ls -a | wc | cut -c1-8)
-    echo GC $b4 to $afta >&2
-}
-
 repl
 
 
