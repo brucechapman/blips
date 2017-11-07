@@ -13,6 +13,10 @@ function make_int() {
 
 # $1 is symbol $2 is a value
 function bind() {
+    if [ -L $1 ] ; then
+	# lost binding makes garbage
+	echo x >> garbageCounter
+    fi
     if [ $1 == nil ] ; then
 	echo cannot bind nil to a value >&2
     elif [[ -n $2 && $2 != nil ]] ; then
@@ -22,6 +26,11 @@ function bind() {
 	    rm -d $1
 	fi
 	touch $1
+    fi
+    if [[ $(stat -f '%z' garbageCounter) -gt 1000 ]] ; then
+        echo garbageCounter=$(stat -f '%z' garbageCounter) - doing gc >&2
+	gc
+	echo x > garbageCounter 
     fi
 }
 
