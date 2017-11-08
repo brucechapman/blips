@@ -12,7 +12,11 @@ function gc() {
     echo GC $b4 to $afta >&2
 }
 
-touch garbageCounter
+SRC_DIR=$(cd $(dirname $0) && pwd)
+CWD_DIR=$(pwd)
+MEM_DIR=$CWD_DIR/.blips_memory
+mkdir -p $MEM_DIR
+touch $MEM_DIR/garbageCounter
 
 source blips_eval.sh
 source blips_functions.sh
@@ -20,10 +24,6 @@ source blips_print.sh
 source blips_read.sh
 source blips_utils.sh
 
-SRC_DIR=$(cd $(dirname $0) && pwd)
-CWD_DIR=$(pwd)
-MEM_DIR=$CWD_DIR/.blips_memory
-mkdir -p $MEM_DIR
 echo SRC_DIR=$SRC_DIR
 echo MEM_DIR=$MEM_DIR
 echo CWD_DIR=$CWD_DIR
