@@ -6,7 +6,7 @@ function gc() {
     touch .gc_mark
     sleep 1
     touch -h *
-    find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune -o -exec touch -h {} \; -exec touch -cam {} \; 
+    find -L . \( -depth 1 -a \( -name '.*' -a ! -name '.stack'  \) \) -prune -o -exec touch -h {} 2\>\&1\; -exec touch -cam {} \; 
     find . \( \! -newer .gc_mark \) -delete
     afta=$(ls -a | wc | cut -c1-8)
     echo GC $b4 to $afta >&2
@@ -17,6 +17,7 @@ CWD_DIR=$(pwd)
 MEM_DIR=$CWD_DIR/.blips_memory
 mkdir -p $MEM_DIR
 touch $MEM_DIR/garbageCounter
+rm -f $MEM_DIR/.patch
 
 source blips_eval.sh
 source blips_functions.sh
