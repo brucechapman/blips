@@ -3,19 +3,18 @@
     (while (not (= n 0))
 	(setq peg1 (cons n peg1) n (+ n -1))
     )
-    (solve cnt (quote peg1) (quote peg2) (quote peg3))
+    (print (cons peg1 (cons peg2 (cons peg3 nil))))
+    (move-stack cnt (quote peg1) (quote peg2) (quote peg3))
+    (quote true)
 )
 
-(defun the-rest 
-)
-
-(defun solve(cnt src dest wrk) 
+(defun move-stack(cnt src dest wrk) 
     (if (not (= cnt 1))
-	(solve (+ cnt -1) src wrk dest)
+	(move-stack (+ cnt -1) src wrk dest)
     )
     (move1 src dest)
     (if (not (= cnt 1))
-	(solve (+ cnt -1) wrk dest src)
+	(move-stack (+ cnt -1) wrk dest src)
     )
 )
 
