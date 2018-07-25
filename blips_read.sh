@@ -46,7 +46,7 @@ function create() {
 		break
 	    else
 		# assume a symbol (once we deal with floats)
-		if [ ! -f $line ] ; then
+		if [ ! -f $line -a ! -h $line ] ; then
 		    touch $line
 		fi
 		echo $line
