@@ -129,7 +129,9 @@ function pop_stack() {
 # return a list of all the args in the list
 function arglist() {
     #echo arglist of $1 >&2
-    if [ $1 == nil ] ; then
+    if [ -z "$1" ] ; then
+        return
+    elif [ $1 == nil ] ; then
 	return
     fi
     ptr=$1

@@ -20,18 +20,32 @@ function bind() {
     if [ $1 == nil ] ; then
 	echo cannot bind nil to a value >&2
     elif [[ -n $2 && $2 != nil ]] ; then
-	ln -sfhF $2 $1
+        if [[ -h $1 ]] ; then
+           rm $1
+        fi
+	ln -sf $2 $1
     else
 	if [ -e $1 ] ; then
 	    rm -d $1
 	fi
 	touch $1
     fi
-    if [[ $(stat -f '%z' garbageCounter) -gt 1000 ]] ; then
-        echo garbageCounter=$(stat -f '%z' garbageCounter) - doing gc >&2
+    if [[ $(filesize garbageCounter) -gt 1000 ]] ; then
+        echo garbageCounter=$(filesize garbageCounter) - doing gc >&2
 	gc
 	echo x > garbageCounter 
     fi
+}
+
+function filesize() {
+    case $(uname) in
+	Darwin)
+	    stat -f '%z' $1
+	    ;;
+	Linux)
+	    stat -c '%s' $1
+	    ;;
+    esac
 }
 
 function make_cons() {
