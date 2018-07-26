@@ -41,9 +41,8 @@ CWD_DIR=/Users/bruce/blips
 ((1) (3) (2))
 ((1) (2 3) nil)
 (nil (1 2 3) nil)
+?: !exit
 ```
-
-Ctrl-C to exit.
 
 ## Features
 - Garbage Collector
@@ -74,11 +73,11 @@ To implement additional forms and functions...
   - the result is a path (of the value), and is returned by writing to stdout of the function. (or 'nil')
   - there are utility functions for creating ints, strings and cons.
   - for a function the evaled args are $1 .. $N and are the path's to the values.
-  - for a simple form the unevalued are=gs are $1 .. $N and are the paths to the values.
+  - for a simple form the unevalued args are $1 .. $N and are the paths to the values.
   - for a complex form, $1 is the name of a cons (a directory) containing all the args as a list.
   - do not write anything other than the result to stdout.
   - output may be written to stderr.
-  - see the existing definiitions in `blips_functions.sh`
+  - see the existing definitions in `blips_functions.sh`
   
 - If the function is in `blips_functions.sh` it will be available once the blips REPL is restarted.
 - Otherwise if putting your own functions in a new file, make sure the file is sourced from `blips.sh` at the same place that the other files are sourced.
