@@ -35,7 +35,7 @@ function =_func_impl() {
 	    echo nil
 	fi
     else
-	echo = only implemented for ints >&2
+	echo "= only implemented for ints" >&2
 	echo nil
     fi
 }
@@ -97,7 +97,7 @@ function +_func_impl() {
     result=$(cat "$1")
     shift
     while [[ -n $1 ]] ; do
-	result=$(("$result"+"$(cat "$1")"))
+	result=$((result+$(cat "$1")))
 	shift
     done
     #echo result=$result >&2
