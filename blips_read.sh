@@ -3,56 +3,56 @@
 function create() {
     headcons=
     while true; do
-	if read line;  then
+	if read -r line;  then
 	    if [[ "$line" == '(' ]]; then
-		next=`create`
+		next=$(create)
 		while [[ $next != ')' ]] ; do
 		    if [[ $next == EOF ]] ; then
 			#echo EOF
 			echo -n '>' >&2
 			break
 		    fi
-		    nextcons=`mktemp -u .cons_XXXX`
+		    nextcons=$(mktemp -u .cons_XXXX)
 		    if [ -z "$headcons" ] ; then
 			headcons=$nextcons
 		    else
-			ln -s ../$nextcons $prevcons/cdr
+			ln -s "../$nextcons" "$prevcons/cdr"
 		    fi
 		    prevcons=$nextcons
-		    mkdir $nextcons
-		    ln -s ../$next $nextcons/car
-		    next=`create`
+		    mkdir "$nextcons"
+		    ln -s "../$next" "$nextcons/car"
+		    next=$(create)
 		done
 		if [[ $next == EOF ]] ; then
 		    break
 		fi
 		if [[ $headcons ]] ; then
-		    ln -s ../nil $nextcons/cdr
-		    echo $headcons
+		    ln -s ../nil "$nextcons/cdr"
+		    echo "$headcons"
 		else
 		    echo nil
 		fi
 		break
 	    elif [[ $line == ')' ]] ; then
-		echo $line
+		echo "$line"
 		break
-	    elif echo $line | grep -q -E '^\-?[0-9]+$' ; then
-	        make_int $line
+	    elif echo "$line" | grep -q -E '^\-?[0-9]+$' ; then
+	        make_int "$line"
 		break
-	    elif echo $line | grep -q -E '^"' ; then
-		str=`mktemp -u .str_XXXX`
-		echo $line | sed -e 's/^"//' -e 's/"$//' > $str
-		echo $str
+	    elif echo "$line" | grep -q -E '^"' ; then
+		str=$(mktemp -u .str_XXXX)
+		echo "$line" | sed -e 's/^"//' -e 's/"$//' > "$str"
+		echo "$str"
 		break
 	    else
 		# assume a symbol (once we deal with floats)
-		if [ ! -f $line ] && [  ! -h $line ] ; then
-		    touch $line
+		if [ ! -f "$line" ] && [  ! -h "$line" ] ; then
+		    touch "$line"
 		fi
-		echo $line
+		echo "$line"
 		break
 	    fi
-	    echo $line
+	    echo "$line"
 	else
 	    echo EOF
 	    break 
@@ -65,12 +65,14 @@ function remove_comments() {
 }
 
 function strings_to_own_line() {
+    # shellcheck disable=1004
     sed -E -e 's/"([^"]|\\")*"/\
 &\
 /g'
 }
 
 function parens_to_own_line() {
+    # shellcheck disable=1004
     sed  -e 's/(/\
 (\
 /g' | sed  -e 's/)/\
@@ -80,6 +82,7 @@ function parens_to_own_line() {
 
 
 function tokens_to_own_line() {
+    # shellcheck disable=1004
     sed -E -e '/^[^"]/s/[ 	]+/\
 /g' 
 }
