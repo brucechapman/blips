@@ -1,9 +1,15 @@
 #!/bin/bash
 #
 
+if [ -n $1 ] && [ "$1" = -v ] ; then
+    verbose_output=y
+fi
+
 function gc() {
     # shellcheck disable=2012
-    b4=$(ls -a | wc | cut -c1-8)
+    if [ -n "$verbose_output" ] ; then
+	b4=$(ls -a | wc | cut -c1-8)
+    fi
     touch .gc_mark
     sleep 1
     touch -h -- *
@@ -23,9 +29,11 @@ function gc() {
 	    ;;
     esac
     find . \( \! -newer .gc_mark \) -delete
-    # shellcheck disable=2012
-    afta=$(ls -a | wc | cut -c1-8)
-    echo GC "$b4" to "$afta" >&2
+    if [ -n "$verbose_output" ] ; then
+	# shellcheck disable=2012
+	afta=$(ls -a | wc | cut -c1-8)
+	echo GC "$b4" to "$afta" >&2
+    fi
 }
 
 SRC_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -41,9 +49,11 @@ source blips_print.sh
 source blips_read.sh
 source blips_utils.sh
 
-echo SRC_DIR="$SRC_DIR"
-echo MEM_DIR="$MEM_DIR"
-echo CWD_DIR="$CWD_DIR"
+if [ -n "$verbose_output" ] ; then
+    echo SRC_DIR="$SRC_DIR"
+    echo MEM_DIR="$MEM_DIR"
+    echo CWD_DIR="$CWD_DIR"
+fi
 
 cd "$MEM_DIR" || exit
 
