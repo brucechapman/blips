@@ -20,9 +20,6 @@ This runs on MAC-OS and Linux.
 
 ```
 MacBook-Pro:blips bruce$ ./blips.sh
-SRC_DIR=/Users/bruce/blips
-MEM_DIR=/Users/bruce/blips/.blips_memory
-CWD_DIR=/Users/bruce/blips
 ?: (print (+ 3 4))
 7
 =7
