@@ -85,4 +85,4 @@ To implement additional forms and functions...
 While most of the system is implemented using bash script and basic filesystem commands (`touch, ln, rm, mkdir, ls` and similar), the tokenizer uses `sed`, and the garbage collector uses `find`.
 
 ## Pull Requests
-Will be considered if accompanied by a psychiactric report.
+Will be considered if accompanied by a psychiatric report.
