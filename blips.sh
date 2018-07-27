@@ -1,9 +1,15 @@
 #!/bin/bash
 #
 
+if [ -n $1 ] && [ "$1" = -v ] ; then
+    verbose_output=y
+fi
+
 function gc() {
     # shellcheck disable=2012
-    b4=$(ls -a | wc | cut -c1-8)
+    if [ -n "$verbose_output" ] ; then
+	b4=$(ls -a | wc | cut -c1-8)
+    fi
     touch .gc_mark
     sleep 1
     touch -h -- *
@@ -23,9 +29,11 @@ function gc() {
 	    ;;
     esac
     find . \( \! -newer .gc_mark \) -delete
-    # shellcheck disable=2012
-    afta=$(ls -a | wc | cut -c1-8)
-    echo GC "$b4" to "$afta" >&2
+    if [ -n "$verbose_output" ] ; then
+	# shellcheck disable=2012
+	afta=$(ls -a | wc | cut -c1-8)
+	echo GC "$b4" to "$afta" >&2
+    fi
 }
 
 SRC_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -41,24 +49,16 @@ source blips_print.sh
 source blips_read.sh
 source blips_utils.sh
 
-echo SRC_DIR="$SRC_DIR"
-echo MEM_DIR="$MEM_DIR"
-echo CWD_DIR="$CWD_DIR"
+if [ -n "$verbose_output" ] ; then
+    echo SRC_DIR="$SRC_DIR"
+    echo MEM_DIR="$MEM_DIR"
+    echo CWD_DIR="$CWD_DIR"
+fi
 
 cd "$MEM_DIR" || exit
 
 install_implementations
 bind T T
-function rep() {
-    expr=$(read_s_expression)
-    #echo expr=$expr
-    result=$(eval_impl "$expr")
-    #set -vx
-    #echo result of eval=$result >&2
-    echo -n '='
-    print "$result"
-    echo ''
-}
 
 function repl() {
     while true ; do
@@ -76,19 +76,3 @@ function repl() {
 
 repl
 
-
-# close to garbage collector
-# find -L . \( -depth 1 -a -name '.*' \) -prune -o -exec ls -l {} \;
-# then touch the found files, also prune files newer than fixed file used for gc
-# once all non garbage files are found as above then delete all files older than the fixed file
-# but beware this
-#./set
-#./setq
-#./x
-#touch: ./x/.cons_I3XM: Too many levels of symbolic links
-#./x/car
-#./x/cdr
-#./x/cdr/car
-#./x/cdr/cdr
-# this is better
-# find -L . \( -depth 1 -a -name '.*' \) -prune -o -exec touch -h {} \; -print

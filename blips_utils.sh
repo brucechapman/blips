@@ -31,7 +31,9 @@ function bind() {
 	touch "$1"
     fi
     if [[ $(filesize garbageCounter) -gt 1000 ]] ; then
-        echo "garbageCounter=$(filesize garbageCounter) - doing gc" >&2
+	if [ -n "$verbose_output" ] ; then
+	    echo "garbageCounter=$(filesize garbageCounter) - doing gc" >&2
+	fi
 	gc
 	echo x > garbageCounter 
     fi
