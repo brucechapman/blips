@@ -125,8 +125,7 @@ function print_func_impl() {
 function load_func_impl() {
     if [[ $1 =~ \.str_.* ]] ; then
 	if [ -r "$CWD_DIR/$(cat "$1")" ] ; then
-	    #exprs=$(cat "$CWD_DIR/$(cat "$1")" | tokenise | tee debug.tmp | createlots )
-	    exprs=$(tokenise < "$CWD_DIR/$(cat "$1")" | tee debug.tmp | createlots )
+	    exprs=$(tokenise < "$CWD_DIR/$(cat "$1")" | parse_s_expressions )
 	    #echo exprs $exprs >&2
 	    for expr in $exprs ; do
 	        #echo evaluating $(print $expr) >&2
@@ -144,10 +143,10 @@ function load_func_impl() {
     fi 
 }
 
-function createlots() {
+function parse_s_expressions() {
     while true ; do
-	expr=$(create)
-	#echo createlots - next expr is $expr >&2
+	expr=$(parse_s_expression)
+	#echo parse_s_expressions - next expr is $expr >&2
 	if [[ $expr == EOF ]] ; then
 	    break
 	else
