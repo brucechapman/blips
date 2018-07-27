@@ -1,5 +1,5 @@
 # blips
-Esoteric lisp runtime using filesystem as memory
+Esoteric lisp runtime using filesystem as memory.
 
 Some things are stupid because they won't work. Other things are stupid because they might. This project is one of the latter. 
 
@@ -14,7 +14,7 @@ It has a garbage collector, REPL and implements a few built in functions and for
 
 ## Environment
 
-This runs on MAC OS. Have not checked on linux yet. 
+This runs on MAC-OS and Linux.
 
 ## Running
 
@@ -48,6 +48,7 @@ CWD_DIR=/Users/bruce/blips
 - Garbage Collector
 - REPL
 - string and int literals
+- dynamic scoping
 - `setq, set, eval, quote, =, not, defun, if, while, +, car, cdr, cons, print, load`
 
 
@@ -55,15 +56,15 @@ CWD_DIR=/Users/bruce/blips
 - int values are a file called `.int_V` where `V` is the decimal value, the contents of the file are the ascii decimal value of the int.
 - str values are a file called `.str_XXXX` where `XXXX` make a unique file name. The contents of the file are the contents of the string.
 - cons values are a directory called `.cons_XXXX` where XXXX make a unique file name. The contents of the directory are symbolic links `car` and `cdr` pointing to the two values.
-- symbols are files or symbolic links with the same name as the symbol. bound symbols are symbolic links to the file or directory representing the bound value. Unbound symbols are zero sized files.
+- symbols are files or symbolic links with the same name as the symbol. Bound symbols are symbolic links to the file or directory representing the bound value. Unbound symbols are zero sized files.
 
 ## Extending
 
 To implement additional forms and functions...
 - Decide on the type of implementation
-  - A function has its arguments evaled prior to being passed to the function.
-  - A simple form has the un-evaled args passed as separate parameters
-  - A complex form has the invocation expression passed as a list, that is a cons.
+  - A function has its arguments evaluated prior to being passed to the function.
+  - A simple form has the un-evaluated args passed as separate parameters.
+  - A complex form has all the arguments passed as a single list, that is a cons.
 - create a bash function called `XXX_YYY` where `XXX` is the name of the function or form, and `YYY` is one of
   - `func_impl` to implement a function.
   - `form_impl` to implement a simple form.
@@ -72,19 +73,19 @@ To implement additional forms and functions...
 - implement the function.
   - the result is a path (of the value), and is returned by writing to stdout of the function. (or 'nil')
   - there are utility functions for creating ints, strings and cons.
-  - for a function the evaled args are $1 .. $N and are the path's to the values.
-  - for a simple form the unevalued args are $1 .. $N and are the paths to the values.
-  - for a complex form, $1 is the name of a cons (a directory) containing all the args as a list.
+  - for a function the evaluated arguments are $1 .. $N and are the path's to the values.
+  - for a simple form the unevaluated arguments are $1 .. $N and are the paths to the values.
+  - for a complex form, $1 is the name of a cons (a directory) containing all the arguments as a list.
   - do not write anything other than the result to stdout.
   - output may be written to stderr.
-  - see the existing definitions in `blips_functions.sh`
+  - see the existing definitions in `blips_functions.sh` for how the existing forms and functions are defined.
   
 - If the function is in `blips_functions.sh` it will be available once the blips REPL is restarted.
 - Otherwise if putting your own functions in a new file, make sure the file is sourced from `blips.sh` at the same place that the other files are sourced.
 
 
 ## Cheats
-While most of the system is implemented as a bash script, the tokenizer uses `sed`, and the garbage collector uses `find`.
+While most of the system is implemented using bash script and basic filesystem commands (`touch, ln, rm, mkdir, ls` and similar), the tokenizer uses `sed`, and the garbage collector uses `find`.
 
 ## Pull Requests
 Will be considered if accompanied by a psychiactric report.
