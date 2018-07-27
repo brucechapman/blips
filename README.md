@@ -4,7 +4,7 @@ Esoteric lisp runtime using filesystem as memory.
 Some things are stupid because they won't work. Other things are stupid because they might. This project is one of the latter. 
 
 After a discussion that ranged from esoteric languages, through lisp, and many other things, 
-the general question arose 'Has any done done an esoteric implementation of a mainstream language?' and from there the specific question of whether you could implement lisp using a *nix file system as the memory. 
+the general question arose 'Has anyone done an esoteric implementation of a mainstream language?' and from there the specific question of whether you could implement lisp using a *nix file system as the memory. 
 Lisp binding implemented as symbolic links. Strings and other values as files, Conses as directories with two symbolic links called car and cdr. Etc. 
 Stupid yet plausible. So naturally the question must be answered. This project does that.
 
