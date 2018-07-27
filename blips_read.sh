@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-function create() {
+function parse_s_expression() {
     headcons=
     while true; do
 	if read -r line;  then
 	    if [[ "$line" == '(' ]]; then
-		next=$(create)
+		next=$(parse_s_expression)
 		while [[ $next != ')' ]] ; do
 		    if [[ $next == EOF ]] ; then
 			#echo EOF
@@ -21,7 +21,7 @@ function create() {
 		    prevcons=$nextcons
 		    mkdir "$nextcons"
 		    ln -s "../$next" "$nextcons/car"
-		    next=$(create)
+		    next=$(parse_s_expression)
 		done
 		if [[ $next == EOF ]] ; then
 		    break
@@ -94,6 +94,10 @@ function remove_blank_lines() {
 
 function tokenise() {
     remove_comments | strings_to_own_line |parens_to_own_line | tokens_to_own_line |remove_blank_lines
+}
+
+function read_s_expression() {
+    tokenise | parse_s_expression
 }
 
 

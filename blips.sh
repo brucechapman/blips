@@ -50,7 +50,7 @@ cd "$MEM_DIR" || exit
 install_implementations
 bind T T
 function rep() {
-expr=$(tokenise | create)
+    expr=$(read_s_expression)
     #echo expr=$expr
     result=$(eval_impl "$expr")
     #set -vx
@@ -62,18 +62,18 @@ expr=$(tokenise | create)
 
 function repl() {
     while true ; do
-        #echo -n '?:'
 	read -er -p '?: ' line
 	if [[ "$line" == '!exit' ]] ; then
 	    break
 	fi
-	expr=$(echo "$line" | tokenise | create )
+	expr=$(echo "$line" | read_s_expression )
 	result=$(eval_impl "$expr")
 	echo -n '='
 	print "$result"
 	echo ''
     done
 }
+
 repl
 
 
